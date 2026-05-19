@@ -155,7 +155,13 @@ install_bt_panel() {
 
   msg "安装宝塔面板"
   curl -fsSL "${BT_INSTALL_URL}" -o /tmp/install_bt_panel.sh
+  set +o pipefail
   yes y | bash /tmp/install_bt_panel.sh "${BT_INSTALL_ARGS}"
+  local bt_status=${PIPESTATUS[1]}
+  set -o pipefail
+  if [ "${bt_status}" -ne 0 ]; then
+    die "宝塔面板安装失败，退出码: ${bt_status}"
+  fi
 }
 
 install_docker_from_system_repo() {
