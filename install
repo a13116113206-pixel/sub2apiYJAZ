@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+INSTALLER_URL="${INSTALLER_URL:-https://cdn.jsdelivr.net/gh/a13116113206-pixel/-sub2api@1479425ec617d02da1a652b06cad4410641570dd/install_bt_sub2api.sh}"
+INSTALLER_PATH="/tmp/install_bt_sub2api.sh"
+
+if [ "$(id -u)" -ne 0 ]; then
+  echo "请使用 root 运行，例如：curl -fsSL https://cdn.jsdelivr.net/gh/a13116113206-pixel/-sub2api@main/install | sudo bash" >&2
+  exit 1
+fi
+
+curl -fsSL --connect-timeout 20 -m 120 "${INSTALLER_URL}" -o "${INSTALLER_PATH}"
+bash "${INSTALLER_PATH}"

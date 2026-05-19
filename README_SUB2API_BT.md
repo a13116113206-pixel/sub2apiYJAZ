@@ -12,6 +12,12 @@
 sudo bash install_bt_sub2api.sh
 ```
 
+也可以直接用最短命令：
+
+```bash
+curl -fsSL https://cdn.jsdelivr.net/gh/a13116113206-pixel/-sub2api@main/install | sudo bash
+```
+
 国内服务器也可以直接从 CDN 下载并执行：
 
 ```bash
