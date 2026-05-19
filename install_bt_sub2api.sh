@@ -200,20 +200,11 @@ configure_docker_mirror() {
 
   msg "配置 Docker 镜像加速"
   mkdir -p /etc/docker
-  if [ ! -f /etc/docker/daemon.json ]; then
-    cat > /etc/docker/daemon.json <<EOF
-{
-  "registry-mirrors": [
-    "${DOCKER_REGISTRY_MIRROR}",
-    "https://docker.m.daocloud.io",
-    "https://dockerproxy.com",
-    "https://docker.1ms.run"
-  ]
-}
-EOF
-  elif ! grep -q "registry-mirrors" /etc/docker/daemon.json; then
+  if [ -f /etc/docker/daemon.json ]; then
     cp /etc/docker/daemon.json "/etc/docker/daemon.json.bak.$(date +%s)"
-    cat > /etc/docker/daemon.json <<EOF
+  fi
+
+  cat > /etc/docker/daemon.json <<EOF
 {
   "registry-mirrors": [
     "${DOCKER_REGISTRY_MIRROR}",
@@ -223,10 +214,7 @@ EOF
   ]
 }
 EOF
-    msg "已备份旧 Docker daemon.json，并写入镜像加速配置"
-  else
-    msg "检测到已有 Docker registry-mirrors，保留原配置"
-  fi
+  msg "已写入 Docker 多镜像加速配置"
 }
 
 install_docker() {
