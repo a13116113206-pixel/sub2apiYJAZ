@@ -6,7 +6,7 @@
 - PostgreSQL
 - Redis
 
-脚本会自动生成管理员密码、数据库密码和固定密钥，并把访问地址、安全组端口、账号密码写到固定位置。
+脚本会自动生成管理员密码、数据库密码和固定密钥，并把访问地址、安全组端口、账号密码写到一个固定文件里。
 
 ## 一键安装
 
@@ -43,8 +43,7 @@ INSTALL_BT=0 bash <(curl -fsSL https://raw.githubusercontent.com/a13116113206-pi
 ## 部署完成后看哪里
 
 ```text
-/root/sub2api-credentials.txt       sub2api 地址、账号密码、宝塔入口、常用命令
-/root/sub2api-security-group.txt    需要开放的安全组端口
+/root/sub2api-info.txt              sub2api 地址、账号密码、宝塔入口、安全组端口、常用命令
 /root/sub2api-install.log           安装日志
 /opt/sub2api/                       sub2api 部署目录
 /opt/sub2api/.env                   sub2api 环境变量
@@ -53,16 +52,10 @@ INSTALL_BT=0 bash <(curl -fsSL https://raw.githubusercontent.com/a13116113206-pi
 /opt/sub2api/redis_data/            Redis 数据
 ```
 
-查看账号密码：
+查看全部部署信息：
 
 ```bash
-sudo cat /root/sub2api-credentials.txt
-```
-
-查看安全组端口：
-
-```bash
-sudo cat /root/sub2api-security-group.txt
+sudo cat /root/sub2api-info.txt
 ```
 
 查看宝塔账号密码：

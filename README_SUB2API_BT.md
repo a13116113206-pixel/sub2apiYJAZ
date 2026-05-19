@@ -2,7 +2,7 @@
 
 ## 目标
 
-这个脚本做一件事：在一台新 Linux 服务器上安装宝塔面板，然后用 Docker Compose 部署 `sub2api` 官方完整栈，也就是 `sub2api + PostgreSQL + Redis`，最后把访问地址、账号密码、端口安全组清单都写到固定文件里，避免部署完以后到处找信息。
+这个脚本做一件事：在一台新 Linux 服务器上安装宝塔面板，然后用 Docker Compose 部署 `sub2api` 官方完整栈，也就是 `sub2api + PostgreSQL + Redis`，最后把访问地址、账号密码、端口安全组清单都写到一个固定文件里，避免部署完以后到处找信息。
 
 ## 使用方法
 
@@ -35,8 +35,7 @@ sudo INSTALL_BT=0 bash install_bt_sub2api.sh
 脚本会输出信息，同时写入这些文件：
 
 ```text
-/root/sub2api-credentials.txt       sub2api 地址、账号密码、宝塔入口、常用命令
-/root/sub2api-security-group.txt    需要开放的安全组端口
+/root/sub2api-info.txt              sub2api 地址、账号密码、宝塔入口、安全组端口、常用命令
 /root/sub2api-install.log           安装日志
 /opt/sub2api/                       sub2api 部署目录
 /opt/sub2api/.env                   sub2api 环境变量
@@ -45,16 +44,10 @@ sudo INSTALL_BT=0 bash install_bt_sub2api.sh
 /opt/sub2api/redis_data/            Redis 数据
 ```
 
-查看账号密码：
+查看全部部署信息：
 
 ```bash
-sudo cat /root/sub2api-credentials.txt
-```
-
-查看安全组端口：
-
-```bash
-sudo cat /root/sub2api-security-group.txt
+sudo cat /root/sub2api-info.txt
 ```
 
 查看宝塔默认账号密码：
@@ -139,5 +132,5 @@ admin@example.com
 默认密码由脚本随机生成，查看：
 
 ```bash
-sudo cat /root/sub2api-credentials.txt
+sudo cat /root/sub2api-info.txt
 ```

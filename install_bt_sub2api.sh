@@ -5,8 +5,7 @@ APP_NAME="sub2api"
 APP_DIR="/opt/${APP_NAME}"
 ENV_FILE="${APP_DIR}/.env"
 COMPOSE_FILE="${APP_DIR}/docker-compose.yml"
-CREDENTIALS_FILE="/root/${APP_NAME}-credentials.txt"
-SECURITY_FILE="/root/${APP_NAME}-security-group.txt"
+INFO_FILE="/root/${APP_NAME}-info.txt"
 LOG_FILE="/root/${APP_NAME}-install.log"
 
 BT_PORT="${BT_PORT:-8888}"
@@ -217,7 +216,7 @@ write_outputs() {
   bt_url="$(bt_default_url "${ip}")"
   [ -n "${bt_url}" ] || bt_url="http://${ip}:${BT_PORT}"
 
-  cat > "${CREDENTIALS_FILE}" <<EOF
+  cat > "${INFO_FILE}" <<EOF
 sub2api 部署信息
 生成时间: $(date '+%F %T')
 
@@ -241,7 +240,7 @@ sub2api 管理账号:
 - 环境变量: ${ENV_FILE}
 - PostgreSQL数据: ${APP_DIR}/postgres_data
 - Redis数据: ${APP_DIR}/redis_data
-- 安全组清单: ${SECURITY_FILE}
+- 信息总览: ${INFO_FILE}
 - 安装日志: ${LOG_FILE}
 
 常用命令:
@@ -249,10 +248,9 @@ sub2api 管理账号:
 - 查看 sub2api 日志: cd ${APP_DIR} && docker compose logs -f
 - 重启 sub2api: cd ${APP_DIR} && docker compose restart
 - 更新 sub2api: cd ${APP_DIR} && docker compose pull && docker compose up -d
-EOF
-  chmod 600 "${CREDENTIALS_FILE}"
 
-  cat > "${SECURITY_FILE}" <<EOF
+============================================================
+
 需要在云服务器安全组/防火墙开放的端口
 生成时间: $(date '+%F %T')
 
@@ -279,12 +277,13 @@ EOF
 - Azure: VM -> Networking -> Inbound port rules
 - Google Cloud: VPC network -> Firewall
 EOF
+  chmod 600 "${INFO_FILE}"
 
   msg "安装完成"
   echo
-  cat "${CREDENTIALS_FILE}"
+  cat "${INFO_FILE}"
   echo
-  echo "安全组清单已写入: ${SECURITY_FILE}"
+  echo "全部部署信息已写入: ${INFO_FILE}"
 }
 
 main() {
