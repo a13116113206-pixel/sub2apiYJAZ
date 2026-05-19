@@ -15,7 +15,7 @@ sudo bash install_bt_sub2api.sh
 也可以直接用最短命令：
 
 ```bash
-curl -fsSL https://cdn.jsdelivr.net/gh/a13116113206-pixel/-sub2api@main/install | sudo bash
+curl -fsSL https://cdn.jsdelivr.net/gh/a13116113206-pixel/sub2apiYJAZ@main/install | sudo bash
 ```
 
 执行后脚本会先问两个问题，回答完会自动安装到完成：
@@ -28,7 +28,7 @@ curl -fsSL https://cdn.jsdelivr.net/gh/a13116113206-pixel/-sub2api@main/install 
 国内服务器也可以直接从 CDN 下载并执行：
 
 ```bash
-curl -fsSL --connect-timeout 20 -m 120 https://cdn.jsdelivr.net/gh/a13116113206-pixel/-sub2api@main/install_bt_sub2api.sh -o install_bt_sub2api.sh && sudo bash install_bt_sub2api.sh
+curl -fsSL --connect-timeout 20 -m 120 https://cdn.jsdelivr.net/gh/a13116113206-pixel/sub2apiYJAZ@main/install_bt_sub2api.sh -o install_bt_sub2api.sh && sudo bash install_bt_sub2api.sh
 ```
 
 脚本会先问两个问题：

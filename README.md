@@ -13,7 +13,7 @@
 最短命令：
 
 ```bash
-curl -fsSL https://cdn.jsdelivr.net/gh/a13116113206-pixel/-sub2api@main/install | sudo bash
+curl -fsSL https://cdn.jsdelivr.net/gh/a13116113206-pixel/sub2apiYJAZ@main/install | sudo bash
 ```
 
 执行后脚本会先问两个问题，回答完会自动安装到完成：
@@ -24,19 +24,19 @@ curl -fsSL https://cdn.jsdelivr.net/gh/a13116113206-pixel/-sub2api@main/install 
 ```
 
 ```bash
-curl -fsSL --connect-timeout 20 -m 120 https://cdn.jsdelivr.net/gh/a13116113206-pixel/-sub2api@main/install_bt_sub2api.sh -o install_bt_sub2api.sh && sudo bash install_bt_sub2api.sh
+curl -fsSL --connect-timeout 20 -m 120 https://cdn.jsdelivr.net/gh/a13116113206-pixel/sub2apiYJAZ@main/install_bt_sub2api.sh -o install_bt_sub2api.sh && sudo bash install_bt_sub2api.sh
 ```
 
 GitHub raw 直连版：
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/a13116113206-pixel/-sub2api/main/install_bt_sub2api.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/a13116113206-pixel/sub2apiYJAZ/main/install_bt_sub2api.sh)
 ```
 
 如果服务器不支持 `<(...)`，用这一条：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/a13116113206-pixel/-sub2api/main/install_bt_sub2api.sh -o install_bt_sub2api.sh && sudo bash install_bt_sub2api.sh
+curl -fsSL https://raw.githubusercontent.com/a13116113206-pixel/sub2apiYJAZ/main/install_bt_sub2api.sh -o install_bt_sub2api.sh && sudo bash install_bt_sub2api.sh
 ```
 
 ## 带域名安装
@@ -44,7 +44,7 @@ curl -fsSL https://raw.githubusercontent.com/a13116113206-pixel/-sub2api/main/in
 也可以不走交互，直接指定国内服务器和域名：
 
 ```bash
-curl -fsSL --connect-timeout 20 -m 120 https://cdn.jsdelivr.net/gh/a13116113206-pixel/-sub2api@main/install_bt_sub2api.sh -o install_bt_sub2api.sh && sudo SERVER_REGION=cn ACCESS_MODE=domain DOMAIN=api.example.com bash install_bt_sub2api.sh
+curl -fsSL --connect-timeout 20 -m 120 https://cdn.jsdelivr.net/gh/a13116113206-pixel/sub2apiYJAZ@main/install_bt_sub2api.sh -o install_bt_sub2api.sh && sudo SERVER_REGION=cn ACCESS_MODE=domain DOMAIN=api.example.com bash install_bt_sub2api.sh
 ```
 
 ## 自定义端口
@@ -52,7 +52,7 @@ curl -fsSL --connect-timeout 20 -m 120 https://cdn.jsdelivr.net/gh/a13116113206-
 默认 sub2api 对外端口是 `8080`。想改成 `8088`：
 
 ```bash
-SUB2API_PORT=8088 bash <(curl -fsSL https://raw.githubusercontent.com/a13116113206-pixel/-sub2api/main/install_bt_sub2api.sh)
+SUB2API_PORT=8088 bash <(curl -fsSL https://raw.githubusercontent.com/a13116113206-pixel/sub2apiYJAZ/main/install_bt_sub2api.sh)
 ```
 
 ## 已安装宝塔时跳过宝塔安装
