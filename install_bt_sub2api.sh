@@ -82,7 +82,21 @@ install_docker() {
     msg "检测到 Docker 已安装，跳过 Docker 安装"
   else
     msg "安装 Docker"
-    curl -fsSL https://get.docker.com | sh
+    if curl -fsSL https://get.docker.com | sh; then
+      msg "Docker 官方安装脚本执行完成"
+    else
+      msg "Docker 官方安装脚本失败，尝试使用系统软件源安装 Docker"
+      if has_cmd apt-get; then
+        apt-get update -y
+        apt-get install -y docker.io docker-compose-v2
+      elif has_cmd dnf; then
+        dnf install -y docker docker-compose-plugin
+      elif has_cmd yum; then
+        yum install -y docker docker-compose-plugin
+      else
+        die "无法自动安装 Docker：找不到 apt-get/dnf/yum。"
+      fi
+    fi
   fi
 
   if has_cmd systemctl; then

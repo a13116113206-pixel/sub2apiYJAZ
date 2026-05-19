@@ -12,6 +12,12 @@
 sudo bash install_bt_sub2api.sh
 ```
 
+国内服务器也可以直接从 CDN 下载并执行：
+
+```bash
+curl -fsSL --connect-timeout 20 -m 120 https://cdn.jsdelivr.net/gh/a13116113206-pixel/-sub2api@main/install_bt_sub2api.sh -o install_bt_sub2api.sh && sudo bash install_bt_sub2api.sh
+```
+
 如果你已经有域名，可以这样运行：
 
 ```bash

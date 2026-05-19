@@ -10,6 +10,14 @@
 
 ## 一键安装
 
+国内服务器更推荐先下载再执行，方便看到网络报错：
+
+```bash
+curl -fsSL --connect-timeout 20 -m 120 https://cdn.jsdelivr.net/gh/a13116113206-pixel/-sub2api@main/install_bt_sub2api.sh -o install_bt_sub2api.sh && sudo bash install_bt_sub2api.sh
+```
+
+GitHub raw 直连版：
+
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/a13116113206-pixel/-sub2api/main/install_bt_sub2api.sh)
 ```
