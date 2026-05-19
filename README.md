@@ -1,0 +1,111 @@
+# 宝塔 + sub2api 一键安装
+
+在新 Linux 服务器上一条命令安装宝塔面板，并用 Docker Compose 部署 sub2api 官方完整栈：
+
+- sub2api
+- PostgreSQL
+- Redis
+
+脚本会自动生成管理员密码、数据库密码和固定密钥，并把访问地址、安全组端口、账号密码写到固定位置。
+
+## 一键安装
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/a13116113206-pixel/-sub2api/main/install_bt_sub2api.sh)
+```
+
+如果服务器不支持 `<(...)`，用这一条：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/a13116113206-pixel/-sub2api/main/install_bt_sub2api.sh -o install_bt_sub2api.sh && sudo bash install_bt_sub2api.sh
+```
+
+## 带域名安装
+
+```bash
+DOMAIN=api.example.com bash <(curl -fsSL https://raw.githubusercontent.com/a13116113206-pixel/-sub2api/main/install_bt_sub2api.sh)
+```
+
+## 自定义端口
+
+默认 sub2api 对外端口是 `8080`。想改成 `8088`：
+
+```bash
+SUB2API_PORT=8088 bash <(curl -fsSL https://raw.githubusercontent.com/a13116113206-pixel/-sub2api/main/install_bt_sub2api.sh)
+```
+
+## 已安装宝塔时跳过宝塔安装
+
+```bash
+INSTALL_BT=0 bash <(curl -fsSL https://raw.githubusercontent.com/a13116113206-pixel/-sub2api/main/install_bt_sub2api.sh)
+```
+
+## 部署完成后看哪里
+
+```text
+/root/sub2api-credentials.txt       sub2api 地址、账号密码、宝塔入口、常用命令
+/root/sub2api-security-group.txt    需要开放的安全组端口
+/root/sub2api-install.log           安装日志
+/opt/sub2api/                       sub2api 部署目录
+/opt/sub2api/.env                   sub2api 环境变量
+/opt/sub2api/docker-compose.yml     Docker Compose 配置
+/opt/sub2api/postgres_data/         PostgreSQL 数据
+/opt/sub2api/redis_data/            Redis 数据
+```
+
+查看账号密码：
+
+```bash
+sudo cat /root/sub2api-credentials.txt
+```
+
+查看安全组端口：
+
+```bash
+sudo cat /root/sub2api-security-group.txt
+```
+
+查看宝塔账号密码：
+
+```bash
+sudo bt default
+```
+
+## 安全组需要开放
+
+必须开放：
+
+```text
+TCP 22      SSH
+TCP 8888    宝塔面板默认端口，实际以 bt default 为准
+TCP 8080    sub2api 默认访问端口
+```
+
+可选开放：
+
+```text
+TCP 80      域名 HTTP / 反向代理
+TCP 443     域名 HTTPS / SSL
+```
+
+正式使用域名时，更推荐在宝塔里建站点，用 Nginx 反向代理到：
+
+```text
+http://127.0.0.1:8080
+```
+
+这样外部可以访问：
+
+```text
+https://你的域名
+```
+
+## 常用维护命令
+
+```bash
+cd /opt/sub2api
+docker compose ps
+docker compose logs -f
+docker compose restart
+docker compose pull && docker compose up -d
+```
