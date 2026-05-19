@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-INSTALLER_URL="${INSTALLER_URL:-https://cdn.jsdelivr.net/gh/a13116113206-pixel/-sub2api@1479425ec617d02da1a652b06cad4410641570dd/install_bt_sub2api.sh}"
+INSTALLER_URL="${INSTALLER_URL:-https://cdn.jsdelivr.net/gh/a13116113206-pixel/-sub2api@de2dbbd5a07bbb91d43e2cd939aaee041419a7c4/install_bt_sub2api.sh}"
 INSTALLER_PATH="/tmp/install_bt_sub2api.sh"
 
 if [ "$(id -u)" -ne 0 ]; then
