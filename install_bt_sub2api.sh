@@ -203,14 +203,24 @@ configure_docker_mirror() {
   if [ ! -f /etc/docker/daemon.json ]; then
     cat > /etc/docker/daemon.json <<EOF
 {
-  "registry-mirrors": ["${DOCKER_REGISTRY_MIRROR}"]
+  "registry-mirrors": [
+    "${DOCKER_REGISTRY_MIRROR}",
+    "https://docker.m.daocloud.io",
+    "https://dockerproxy.com",
+    "https://docker.1ms.run"
+  ]
 }
 EOF
   elif ! grep -q "registry-mirrors" /etc/docker/daemon.json; then
     cp /etc/docker/daemon.json "/etc/docker/daemon.json.bak.$(date +%s)"
     cat > /etc/docker/daemon.json <<EOF
 {
-  "registry-mirrors": ["${DOCKER_REGISTRY_MIRROR}"]
+  "registry-mirrors": [
+    "${DOCKER_REGISTRY_MIRROR}",
+    "https://docker.m.daocloud.io",
+    "https://dockerproxy.com",
+    "https://docker.1ms.run"
+  ]
 }
 EOF
     msg "已备份旧 Docker daemon.json，并写入镜像加速配置"
@@ -344,7 +354,16 @@ deploy_app() {
   msg "启动 sub2api"
   mkdir -p "${APP_DIR}/data"
   cd "${APP_DIR}"
-  docker compose pull
+  for attempt in 1 2 3; do
+    if docker compose pull; then
+      break
+    fi
+    if [ "${attempt}" -eq 3 ]; then
+      die "Docker 镜像拉取失败。可稍后重试：cd ${APP_DIR} && docker compose pull && docker compose up -d"
+    fi
+    msg "Docker 镜像拉取失败，30 秒后第 $((attempt + 1)) 次重试"
+    sleep 30
+  done
   docker compose up -d
 }
 
