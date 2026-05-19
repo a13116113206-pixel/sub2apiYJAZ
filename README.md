@@ -16,7 +16,7 @@
 curl -fsSL https://cdn.jsdelivr.net/gh/a13116113206-pixel/-sub2api@main/install | sudo bash
 ```
 
-国内服务器更推荐先下载再执行，方便看到网络报错。执行后脚本会先问两个问题：
+执行后脚本会先问两个问题，回答完会自动安装到完成：
 
 ```text
 1. 国内服务器 / 国外服务器

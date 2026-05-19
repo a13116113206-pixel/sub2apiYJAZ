@@ -18,6 +18,13 @@ sudo bash install_bt_sub2api.sh
 curl -fsSL https://cdn.jsdelivr.net/gh/a13116113206-pixel/-sub2api@main/install | sudo bash
 ```
 
+执行后脚本会先问两个问题，回答完会自动安装到完成：
+
+```text
+1. 国内服务器 / 国外服务器
+2. 使用本机 IP / 填写域名
+```
+
 国内服务器也可以直接从 CDN 下载并执行：
 
 ```bash

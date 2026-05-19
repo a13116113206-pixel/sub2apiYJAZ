@@ -57,7 +57,11 @@ ask_choice() {
   local choice=""
 
   while true; do
-    read -r -p "${prompt}" choice
+    if [ -r /dev/tty ]; then
+      read -r -p "${prompt}" choice </dev/tty
+    else
+      read -r -p "${prompt}" choice
+    fi
     choice="${choice:-${default_choice}}"
     case "${choice}" in
       1|2)
@@ -109,7 +113,11 @@ ask_questions() {
     2|domain|DOMAIN)
       ACCESS_MODE="domain"
       if [ -z "${DOMAIN}" ]; then
-        read -r -p "请输入你的域名，例如 api.example.com: " DOMAIN
+        if [ -r /dev/tty ]; then
+          read -r -p "请输入你的域名，例如 api.example.com: " DOMAIN </dev/tty
+        else
+          read -r -p "请输入你的域名，例如 api.example.com: " DOMAIN
+        fi
         [ -n "${DOMAIN}" ] || die "选择域名访问时，域名不能为空。"
       fi
       ;;
