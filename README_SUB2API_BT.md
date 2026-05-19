@@ -18,10 +18,17 @@ sudo bash install_bt_sub2api.sh
 curl -fsSL --connect-timeout 20 -m 120 https://cdn.jsdelivr.net/gh/a13116113206-pixel/-sub2api@main/install_bt_sub2api.sh -o install_bt_sub2api.sh && sudo bash install_bt_sub2api.sh
 ```
 
+脚本会先问两个问题：
+
+```text
+1. 国内服务器 / 国外服务器
+2. 使用本机 IP / 填写域名
+```
+
 如果你已经有域名，可以这样运行：
 
 ```bash
-sudo DOMAIN=api.example.com bash install_bt_sub2api.sh
+sudo SERVER_REGION=cn ACCESS_MODE=domain DOMAIN=api.example.com bash install_bt_sub2api.sh
 ```
 
 如果你想改 sub2api 对外端口：
@@ -33,7 +40,7 @@ sudo SUB2API_PORT=8088 bash install_bt_sub2api.sh
 如果服务器已经安装过宝塔，不想让脚本安装宝塔：
 
 ```bash
-sudo INSTALL_BT=0 bash install_bt_sub2api.sh
+sudo INSTALL_BT=0 SERVER_REGION=cn ACCESS_MODE=ip bash install_bt_sub2api.sh
 ```
 
 ## 部署完成后在哪里看信息

@@ -15,7 +15,12 @@ SUB2API_PORT="${SUB2API_PORT:-8080}"
 ADMIN_EMAIL="${ADMIN_EMAIL:-admin@example.com}"
 DOMAIN="${DOMAIN:-}"
 INSTALL_BT="${INSTALL_BT:-1}"
-SUB2API_DEPLOY_SCRIPT_URL="${SUB2API_DEPLOY_SCRIPT_URL:-https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/deploy/docker-deploy.sh}"
+SERVER_REGION="${SERVER_REGION:-}"
+ACCESS_MODE="${ACCESS_MODE:-}"
+DOCKER_REGISTRY_MIRROR="${DOCKER_REGISTRY_MIRROR:-https://mirror.ccs.tencentyun.com}"
+SUB2API_DEPLOY_BASE_CN="${SUB2API_DEPLOY_BASE_CN:-https://cdn.jsdelivr.net/gh/Wei-Shaw/sub2api@main/deploy}"
+SUB2API_DEPLOY_BASE_GLOBAL="${SUB2API_DEPLOY_BASE_GLOBAL:-https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/deploy}"
+SUB2API_DEPLOY_BASE=""
 
 msg() {
   printf '\n[%s] %s\n' "$(date '+%F %T')" "$*"
@@ -44,6 +49,74 @@ detect_os() {
 
 has_cmd() {
   command -v "$1" >/dev/null 2>&1
+}
+
+ask_choice() {
+  local prompt="$1"
+  local default_choice="$2"
+  local choice=""
+
+  while true; do
+    read -r -p "${prompt}" choice
+    choice="${choice:-${default_choice}}"
+    case "${choice}" in
+      1|2)
+        printf '%s' "${choice}"
+        return
+        ;;
+      *)
+        echo "请输入 1 或 2。"
+        ;;
+    esac
+  done
+}
+
+ask_questions() {
+  if [ -z "${SERVER_REGION}" ]; then
+    echo
+    echo "请选择服务器网络位置："
+    echo "1) 国内服务器：使用 CDN/系统源，适合腾讯云、阿里云、华为云中国区"
+    echo "2) 国外服务器：使用 GitHub/Docker 官方源，海外机器通常更快"
+    SERVER_REGION="$(ask_choice "请输入 1 或 2 [默认 1]: " "1")"
+  fi
+
+  case "${SERVER_REGION}" in
+    1|cn|CN|china|China)
+      SERVER_REGION="cn"
+      SUB2API_DEPLOY_BASE="${SUB2API_DEPLOY_BASE_CN}"
+      ;;
+    2|global|GLOBAL|foreign|Foreign|abroad|Abroad)
+      SERVER_REGION="global"
+      SUB2API_DEPLOY_BASE="${SUB2API_DEPLOY_BASE_GLOBAL}"
+      ;;
+    *)
+      die "SERVER_REGION 只能是 1/cn 或 2/global。"
+      ;;
+  esac
+
+  if [ -z "${ACCESS_MODE}" ]; then
+    echo
+    echo "请选择访问方式："
+    echo "1) 使用本机公网 IP 访问"
+    echo "2) 填写域名访问"
+    ACCESS_MODE="$(ask_choice "请输入 1 或 2 [默认 1]: " "1")"
+  fi
+
+  case "${ACCESS_MODE}" in
+    1|ip|IP)
+      ACCESS_MODE="ip"
+      ;;
+    2|domain|DOMAIN)
+      ACCESS_MODE="domain"
+      if [ -z "${DOMAIN}" ]; then
+        read -r -p "请输入你的域名，例如 api.example.com: " DOMAIN
+        [ -n "${DOMAIN}" ] || die "选择域名访问时，域名不能为空。"
+      fi
+      ;;
+    *)
+      die "ACCESS_MODE 只能是 1/ip 或 2/domain。"
+      ;;
+  esac
 }
 
 install_packages() {
@@ -77,30 +150,79 @@ install_bt_panel() {
   yes y | bash /tmp/install_bt_panel.sh "${BT_INSTALL_ARGS}"
 }
 
+install_docker_from_system_repo() {
+  if has_cmd apt-get; then
+    apt-get update -y
+    apt-get install -y docker.io
+    if apt-cache show docker-compose-v2 >/dev/null 2>&1; then
+      apt-get install -y docker-compose-v2
+    elif apt-cache show docker-compose-plugin >/dev/null 2>&1; then
+      apt-get install -y docker-compose-plugin
+    else
+      die "系统软件源里没有 Docker Compose v2。建议换 Ubuntu 22.04/24.04 或 Debian 12 后重试。"
+    fi
+  elif has_cmd dnf; then
+    dnf install -y docker docker-compose-plugin
+  elif has_cmd yum; then
+    yum install -y docker docker-compose-plugin
+  else
+    die "无法自动安装 Docker：找不到 apt-get/dnf/yum。"
+  fi
+}
+
+install_docker_from_official() {
+  if curl -fsSL https://get.docker.com | sh; then
+    msg "Docker 官方安装脚本执行完成"
+  else
+    msg "Docker 官方安装脚本失败，尝试使用系统软件源安装 Docker"
+    install_docker_from_system_repo
+  fi
+}
+
+configure_docker_mirror() {
+  if [ "${SERVER_REGION}" != "cn" ]; then
+    return
+  fi
+
+  msg "配置 Docker 镜像加速"
+  mkdir -p /etc/docker
+  if [ ! -f /etc/docker/daemon.json ]; then
+    cat > /etc/docker/daemon.json <<EOF
+{
+  "registry-mirrors": ["${DOCKER_REGISTRY_MIRROR}"]
+}
+EOF
+  elif ! grep -q "registry-mirrors" /etc/docker/daemon.json; then
+    cp /etc/docker/daemon.json "/etc/docker/daemon.json.bak.$(date +%s)"
+    cat > /etc/docker/daemon.json <<EOF
+{
+  "registry-mirrors": ["${DOCKER_REGISTRY_MIRROR}"]
+}
+EOF
+    msg "已备份旧 Docker daemon.json，并写入镜像加速配置"
+  else
+    msg "检测到已有 Docker registry-mirrors，保留原配置"
+  fi
+}
+
 install_docker() {
   if has_cmd docker; then
     msg "检测到 Docker 已安装，跳过 Docker 安装"
   else
     msg "安装 Docker"
-    if curl -fsSL https://get.docker.com | sh; then
-      msg "Docker 官方安装脚本执行完成"
+    if [ "${SERVER_REGION}" = "cn" ]; then
+      install_docker_from_system_repo
     else
-      msg "Docker 官方安装脚本失败，尝试使用系统软件源安装 Docker"
-      if has_cmd apt-get; then
-        apt-get update -y
-        apt-get install -y docker.io docker-compose-v2
-      elif has_cmd dnf; then
-        dnf install -y docker docker-compose-plugin
-      elif has_cmd yum; then
-        yum install -y docker docker-compose-plugin
-      else
-        die "无法自动安装 Docker：找不到 apt-get/dnf/yum。"
-      fi
+      install_docker_from_official
     fi
   fi
 
+  configure_docker_mirror
+
   if has_cmd systemctl; then
+    systemctl daemon-reload || true
     systemctl enable --now docker || true
+    systemctl restart docker || true
   else
     service docker start || true
   fi
@@ -148,6 +270,13 @@ env_set() {
   fi
 }
 
+download_file() {
+  local url="$1"
+  local output="$2"
+
+  curl -fsSL --connect-timeout 20 -m 180 "${url}" -o "${output}"
+}
+
 prepare_sub2api_files() {
   mkdir -p "${APP_DIR}"
   cd "${APP_DIR}"
@@ -156,8 +285,9 @@ prepare_sub2api_files() {
     msg "检测到已有 sub2api 部署文件，保留原配置并补齐关键变量"
   else
     msg "下载并准备 sub2api 官方 Docker Compose 部署文件"
-    curl -fsSL "${SUB2API_DEPLOY_SCRIPT_URL}" -o /tmp/sub2api-docker-deploy.sh
-    bash /tmp/sub2api-docker-deploy.sh
+    download_file "${SUB2API_DEPLOY_BASE}/docker-compose.local.yml" "${COMPOSE_FILE}"
+    download_file "${SUB2API_DEPLOY_BASE}/.env.example" "${APP_DIR}/.env.example"
+    cp "${APP_DIR}/.env.example" "${ENV_FILE}"
   fi
 
   [ -f "${COMPOSE_FILE}" ] || die "没有找到 ${COMPOSE_FILE}"
@@ -215,8 +345,17 @@ bt_default_url() {
   fi
 }
 
+bt_panel_port() {
+  local url="$1"
+  local port=""
+
+  port="$(printf '%s' "${url}" | sed -n 's#^[a-zA-Z][a-zA-Z0-9+.-]*://[^/:]*:\([0-9]\+\).*#\1#p')"
+  [ -n "${port}" ] || port="${BT_PORT}"
+  printf '%s' "${port}"
+}
+
 write_outputs() {
-  local ip private_ip base_url bt_url domain_url
+  local ip private_ip base_url bt_url domain_url bt_actual_port region_label access_label
   ip="$(public_ip)"
   private_ip="$(first_private_ip)"
   [ -n "${ip}" ] || ip="${private_ip}"
@@ -229,6 +368,19 @@ write_outputs() {
 
   bt_url="$(bt_default_url "${ip}")"
   [ -n "${bt_url}" ] || bt_url="http://${ip}:${BT_PORT}"
+  bt_actual_port="$(bt_panel_port "${bt_url}")"
+
+  if [ "${SERVER_REGION}" = "cn" ]; then
+    region_label="国内服务器"
+  else
+    region_label="国外服务器"
+  fi
+
+  if [ "${ACCESS_MODE}" = "domain" ]; then
+    access_label="域名访问"
+  else
+    access_label="本机IP访问"
+  fi
 
   cat > "${INFO_FILE}" <<EOF
 sub2api 部署信息
@@ -247,6 +399,9 @@ sub2api 管理账号:
 - 查看宝塔默认账号密码命令: bt default
 
 服务器信息:
+- 服务器网络: ${region_label}
+- 访问方式: ${access_label}
+- sub2api部署文件下载源: ${SUB2API_DEPLOY_BASE}
 - 公网IP: ${ip}
 - 内网IP: ${private_ip}
 - 部署目录: ${APP_DIR}
@@ -270,7 +425,7 @@ sub2api 管理账号:
 
 必须开放:
 - TCP 22      SSH 登录服务器
-- TCP ${BT_PORT}    宝塔面板入口，默认 8888；如果 bt default 显示了其他端口，以 bt default 为准
+- TCP ${bt_actual_port}    宝塔面板入口，以 bt default 输出为准
 - TCP ${SUB2API_PORT}    sub2api 访问端口
 
 可选开放:
@@ -279,7 +434,7 @@ sub2api 管理账号:
 
 建议来源:
 - 22: 只允许你的办公/家用公网 IP
-- ${BT_PORT}: 只允许你的办公/家用公网 IP
+- ${bt_actual_port}: 只允许你的办公/家用公网 IP
 - ${SUB2API_PORT}: 如果要公开服务可允许 0.0.0.0/0；如果只自己用，限制为你的 IP
 - 80/443: 绑定域名对外访问时允许 0.0.0.0/0
 
@@ -304,7 +459,10 @@ main() {
   need_root
   exec > >(tee -a "${LOG_FILE}") 2>&1
   detect_os
+  ask_questions
   msg "系统: ${OS_ID} ${OS_VERSION_ID}"
+  msg "服务器网络: ${SERVER_REGION}"
+  msg "访问方式: ${ACCESS_MODE}"
   install_packages
   install_bt_panel
   install_docker

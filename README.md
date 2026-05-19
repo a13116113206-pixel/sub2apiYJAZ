@@ -10,7 +10,12 @@
 
 ## 一键安装
 
-国内服务器更推荐先下载再执行，方便看到网络报错：
+国内服务器更推荐先下载再执行，方便看到网络报错。执行后脚本会先问两个问题：
+
+```text
+1. 国内服务器 / 国外服务器
+2. 使用本机 IP / 填写域名
+```
 
 ```bash
 curl -fsSL --connect-timeout 20 -m 120 https://cdn.jsdelivr.net/gh/a13116113206-pixel/-sub2api@main/install_bt_sub2api.sh -o install_bt_sub2api.sh && sudo bash install_bt_sub2api.sh
@@ -30,8 +35,10 @@ curl -fsSL https://raw.githubusercontent.com/a13116113206-pixel/-sub2api/main/in
 
 ## 带域名安装
 
+也可以不走交互，直接指定国内服务器和域名：
+
 ```bash
-DOMAIN=api.example.com bash <(curl -fsSL https://raw.githubusercontent.com/a13116113206-pixel/-sub2api/main/install_bt_sub2api.sh)
+curl -fsSL --connect-timeout 20 -m 120 https://cdn.jsdelivr.net/gh/a13116113206-pixel/-sub2api@main/install_bt_sub2api.sh -o install_bt_sub2api.sh && sudo SERVER_REGION=cn ACCESS_MODE=domain DOMAIN=api.example.com bash install_bt_sub2api.sh
 ```
 
 ## 自定义端口
@@ -45,7 +52,7 @@ SUB2API_PORT=8088 bash <(curl -fsSL https://raw.githubusercontent.com/a131161132
 ## 已安装宝塔时跳过宝塔安装
 
 ```bash
-INSTALL_BT=0 bash <(curl -fsSL https://raw.githubusercontent.com/a13116113206-pixel/-sub2api/main/install_bt_sub2api.sh)
+sudo INSTALL_BT=0 SERVER_REGION=cn ACCESS_MODE=ip bash install_bt_sub2api.sh
 ```
 
 ## 部署完成后看哪里
